@@ -25,7 +25,7 @@ load_dotenv()
 DEBUG = os.getenv("DEBUG") == "True"
 WSGI_APPLICATION = "config.wsgi.application"
 
-ALLOWED_HOSTS = os.getenv("ALLOWED_HOSTS").split(",")
+ALLOWED_HOSTS = ['*']
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
