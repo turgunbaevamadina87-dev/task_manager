@@ -44,6 +44,7 @@ def task_list(request):
     return render(request, "tasks.html", {"tasks": tasks})
 
 # Добавление задачи
+
 @login_required(login_url="/users/login/")
 def task_add(request):
     error = None
@@ -53,10 +54,15 @@ def task_add(request):
         status = request.POST.get("status")
         deadline_str = request.POST.get("deadline", "").strip()
 
+        # Проверка названия
         if not title:
             error = "Название задачи не может быть пустым"
+
+        # Проверка описания
         elif len(description) < 10:
             error = "Описание должно быть минимум 10 символов"
+
+        # Проверка даты
         elif not deadline_str:
             error = "Дедлайн обязателен"
         else:
@@ -65,16 +71,24 @@ def task_add(request):
             except ValueError:
                 error = "Неверный формат даты. Используйте YYYY-MM-DD."
             else:
-                Task.objects.create(
-                    title=title,
-                    description=description,
-                    status=status,
-                    deadline=deadline,
-                    owner=request.user
-                )
-                return redirect("task_list")
+                # Проверка, что дата не в прошлом
+                if deadline < timezone.now().date():
+                    error = "Дата не может быть в прошлом!"
+                else:
+                    # Всё верно, создаём задачу
+                    Task.objects.create(
+                        title=title,
+                        description=description,
+                        status=status,
+                        deadline=deadline,
+                        owner=request.user
+                    )
+                    return redirect("task_list")
 
-    return render(request, "task_add.html", {"error": error})
+    # Передаём текущую дату для min в HTML
+    today = timezone.now().date()
+
+    return render(request, "task_add.html", {"error": error, "today": today})
 
 # Редактирование задачи
 @login_required(login_url="/users/login/")
