@@ -31,3 +31,9 @@ class TaskSerializer(serializers.ModelSerializer):
     # 🔹 общая проверка (если понадобится)
     def validate(self, data):
         return data
+
+    def validate_deadline(self, value):
+        """Проверка, чтобы дата не была в прошлом"""
+        if value < timezone.now().date():
+            raise serializers.ValidationError("Дата не может быть в прошлом!")
+        return value
