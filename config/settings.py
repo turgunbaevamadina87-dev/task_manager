@@ -15,11 +15,15 @@ from datetime import timedelta
 import os
 from dotenv import load_dotenv
 
-load_dotenv()
+
+os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'config.settings')  # <- имя проекта здесь
+
 
 SECRET_KEY = os.getenv("SECRET_KEY")
+load_dotenv()
 
 DEBUG = os.getenv("DEBUG") == "True"
+WSGI_APPLICATION = "config.wsgi.application"
 
 ALLOWED_HOSTS = os.getenv("ALLOWED_HOSTS").split(",")
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -119,7 +123,7 @@ TEMPLATES = [
     },
 ]
 
-WSGI_APPLICATION = 'config.wsgi.application'
+
 
 
 # Database
