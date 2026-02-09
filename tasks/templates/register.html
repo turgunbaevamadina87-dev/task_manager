@@ -1,0 +1,37 @@
+{% extends 'base.html' %}
+
+{% block title %}Register{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-5 glass">
+
+        <h3 class="mb-4 text-center">✨ Create account</h3>
+
+        <!-- 👇 вывод ошибок валидации -->
+        {% if error %}
+            <div class="alert alert-danger">
+                {{ error }}
+            </div>
+        {% endif %}
+
+        <form method="post">
+            {% csrf_token %}
+
+            <input class="form-control mb-3" name="username" placeholder="Username" value="{{ request.POST.username }}">
+            <input class="form-control mb-3" name="email" placeholder="Email" value="{{ request.POST.email }}">
+            <input class="form-control mb-3" type="password" name="password" placeholder="Password">
+            <input class="form-control mb-3" type="password" name="password_confirm" placeholder="Confirm password">
+
+            <button class="btn btn-success w-100 btn-modern">
+                Register
+            </button>
+        </form>
+
+        <div class="text-center mt-3">
+            <a href="{% url 'login' %}">Already have account? Login</a>
+        </div>
+
+    </div>
+</div>
+{% endblock %}

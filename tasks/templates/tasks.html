@@ -1,0 +1,231 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block content %}
+
+<div class="container py-4">
+
+    <!-- HEADER -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h3 class="text-white">📋 My Tasks Board</h3>
+
+        <div class="d-flex gap-2">
+            <a href="/tasks/add/" class="btn btn-success">
+                + Add Task
+            </a>
+            <a href="{% url 'logout' %}" class="btn btn-danger">
+                🚪 Logout
+            </a>
+        </div>
+    </div>
+
+
+    <!-- ================= ФИЛЬТРЫ ================= -->
+    <form method="get" class="card p-3 mb-4 shadow-sm">
+
+        <div class="row g-2">
+
+            <div class="col-md-3">
+                <input type="text"
+                       name="search"
+                       value="{{ request.GET.search }}"
+                       class="form-control"
+                       placeholder="🔍 Search title">
+            </div>
+
+            <div class="col-md-2">
+                <select name="status" class="form-select">
+                    <option value="">All status</option>
+                    <option value="todo">Todo</option>
+                    <option value="in_progress">In Progress</option>
+                    <option value="done">Done</option>
+                </select>
+            </div>
+
+            <div class="col-md-2">
+                <input type="date"
+                       name="deadline"
+                       value="{{ request.GET.deadline }}"
+                       class="form-control">
+            </div>
+
+            <div class="col-md-2">
+                <select name="ordering" class="form-select">
+                    <option value="-created_at">Newest</option>
+                    <option value="created_at">Oldest</option>
+                </select>
+            </div>
+
+            <div class="col-md-2">
+                <button class="btn btn-primary w-100">Apply</button>
+            </div>
+
+        </div>
+    </form>
+
+
+    <!-- ================= СТАТИСТИКА ================= -->
+    <div class="text-white mb-3">
+        📊 Total: {{ stats.total }} |
+        📝 Todo: {{ stats.todo }} |
+        🚀 Progress: {{ stats.progress }} |
+        ✅ Done: {{ stats.done }}
+    </div>
+
+
+
+    <!-- ================= BOARD ================= -->
+    <div class="row g-4">
+
+        <!-- ================= TODO ================= -->
+        <div class="col-md-4">
+            <div class="card shadow h-100">
+
+                <div class="card-header bg-light fw-bold text-center">
+                    📝 Todo
+                </div>
+
+                <div class="card-body">
+
+                    {% for task in tasks %}
+                    {% if task.status == "todo" %}
+
+                    <div class="card mb-3 shadow-sm border-start border-4 border-secondary">
+                        <div class="card-body">
+
+                            <h6 class="fw-bold">{{ task.title }}</h6>
+                            <small class="text-muted">📅 {{ task.deadline }}</small>
+
+                            <div class="mt-3 d-flex gap-2 flex-wrap">
+
+                                <a href="/tasks/{{task.id}}/move/in_progress/"
+                                   class="btn btn-sm btn-primary">
+                                    ➡ In Progress
+                                </a>
+
+                                <a href="/tasks/{{task.id}}/edit/"
+                                   class="btn btn-sm btn-warning">
+                                    Edit
+                                </a>
+
+                            </div>
+
+                        </div>
+                    </div>
+
+                    {% endif %}
+                    {% endfor %}
+
+                </div>
+            </div>
+        </div>
+
+
+
+        <!-- ================= IN PROGRESS ================= -->
+        <div class="col-md-4">
+            <div class="card shadow h-100">
+
+                <div class="card-header bg-warning fw-bold text-center">
+                    🚀 In Progress
+                </div>
+
+                <div class="card-body">
+
+                    {% for task in tasks %}
+                    {% if task.status == "in_progress" %}
+
+                    <div class="card mb-3 shadow-sm border-start border-4 border-warning">
+                        <div class="card-body">
+
+                            <h6 class="fw-bold">{{ task.title }}</h6>
+                            <small class="text-muted">📅 {{ task.deadline }}</small>
+
+                            <div class="mt-3 d-flex gap-2 flex-wrap">
+
+                                <a href="/tasks/{{task.id}}/move/todo/"
+                                   class="btn btn-sm btn-secondary">
+                                    ⬅
+                                </a>
+
+                                <a href="/tasks/{{task.id}}/move/done/"
+                                   class="btn btn-sm btn-success">
+                                    ✔
+                                </a>
+
+                                <a href="/tasks/{{task.id}}/edit/"
+                                   class="btn btn-sm btn-warning">
+                                    Edit
+                                </a>
+
+                            </div>
+
+                        </div>
+                    </div>
+
+                    {% endif %}
+                    {% endfor %}
+
+                </div>
+            </div>
+        </div>
+
+
+
+        <!-- ================= DONE ================= -->
+        <div class="col-md-4">
+            <div class="card shadow h-100">
+
+                <div class="card-header bg-success text-white fw-bold text-center">
+                    ✅ Done
+                </div>
+
+                <div class="card-body">
+
+                    {% for task in tasks %}
+                    {% if task.status == "done" %}
+
+                    <div class="card mb-3 shadow-sm border-start border-4 border-success bg-light">
+                        <div class="card-body">
+
+                            <h6 class="fw-bold text-decoration-line-through">
+                                {{ task.title }}
+                            </h6>
+
+                            <small class="text-muted">✔ Completed</small>
+
+                        </div>
+                    </div>
+
+                    {% endif %}
+                    {% endfor %}
+
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+
+
+    <!-- ================= ПАГИНАЦИЯ ================= -->
+    <div class="text-center mt-4">
+
+        {% if page_obj.has_previous %}
+            <a href="?page={{ page_obj.previous_page_number }}"
+               class="btn btn-outline-light">←</a>
+        {% endif %}
+
+        <span class="text-white mx-3">
+            Page {{ page_obj.number }} / {{ page_obj.paginator.num_pages }}
+        </span>
+
+        {% if page_obj.has_next %}
+            <a href="?page={{ page_obj.next_page_number }}"
+               class="btn btn-outline-light">→</a>
+        {% endif %}
+
+    </div>
+
+</div>
+
+{% endblock %}
